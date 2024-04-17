@@ -58,7 +58,7 @@ begin
 
 	Comparator_0: Comparator_1bit
     	port map( G_in => '0',
-        		  S_in => '0',
+        	  S_in => '0',
                   E_in => '1',
                   A => A(3),
                   B => B(3),
@@ -69,7 +69,7 @@ begin
     
     Comparator_1: Comparator_1bit
     	port map( G_in => G_out_0,
-        		  S_in => S_out_0,
+        	  S_in => S_out_0,
                   E_in => E_out_0,
                   A => A(2),
                   B => B(2),
@@ -80,7 +80,7 @@ begin
     
     Comparator_2: Comparator_1bit
     	port map( G_in => G_out_1,
-        		  S_in => S_out_1,
+        	  S_in => S_out_1,
                   E_in => E_out_1,
                   A => A(1),
                   B => B(1),
@@ -91,7 +91,7 @@ begin
     
     Comparator_3: Comparator_1bit
     	port map( G_in => G_out_2,
-        		  S_in => S_out_2,
+        	  S_in => S_out_2,
                   E_in => E_out_2,
                   A => A(0),
                   B => B(0),
