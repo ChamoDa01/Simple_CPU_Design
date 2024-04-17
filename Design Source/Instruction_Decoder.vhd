@@ -38,6 +38,7 @@ entity Instruction_Decoder is
            RegEnable : out STD_LOGIC_VECTOR (2 downto 0);
            LoadSelect1 : out STD_LOGIC;
            LoadSelect2 : out STD_LOGIC;
+           LoadSelect3 : out STD_LOGIC;
            Logic_Func : out STD_LOGIC_VECTOR(1 downto 0);
            ImmediateValue : out STD_LOGIC_VECTOR (3 downto 0);
            RegSelect1 : out STD_LOGIC_VECTOR (2 downto 0);
@@ -52,7 +53,8 @@ begin
 
     RegEnable <= InsBus(9 downto 7);
     LoadSelect1 <= not(InsBus(12)) and InsBus(11) and not(InsBus(10));
-    LoadSelect2 <= InsBus(12);
+    LoadSelect2 <= InsBus(12) and (InsBus(10) or not(InsBus(11)));
+    LoadSelect3 <= InsBus(12) and InsBus(11) and not(InsBus(10));
     Logic_Func <= InsBus(11 downto 10);
     ImmediateValue <= InsBus(3 downto 0);
     RegSelect1 <= InsBus(9 downto 7);
