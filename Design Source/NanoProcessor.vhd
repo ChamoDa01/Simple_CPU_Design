@@ -37,7 +37,10 @@ entity NanoProcessor is
            seg : out STD_LOGIC_VECTOR(6 downto 0);
            an : out STD_LOGIC_VECTOR(3 downto 0);
            Zero : out STD_LOGIC := '0';
-           Overflow : out STD_LOGIC := '0');
+           Overflow : out STD_LOGIC := '0';
+           G_out : out STD_LOGIC;
+           S_out : out STD_LOGIC;
+           E_out : out STD_LOGIC );
 end NanoProcessor;
 
 architecture Behavioral of NanoProcessor is
@@ -93,7 +96,7 @@ component Instruction_Decoder is
            RegEnable : out STD_LOGIC_VECTOR (2 downto 0);
            LoadSelect1 : out STD_LOGIC;
            LoadSelect2 : out STD_LOGIC;
-           Logic_Func : out STD_LOGIC_VECTOR(1 downto 0);
+           Logic_Func : out STD_LOGIC_VECTOR(2 downto 0);
            ImmediateValue : out STD_LOGIC_VECTOR (3 downto 0);
            RegSelect1 : out STD_LOGIC_VECTOR (2 downto 0);
            RegSelect2 : out STD_LOGIC_VECTOR (2 downto 0);
@@ -133,8 +136,11 @@ end component;
 component Logical_OP is
     Port ( IN_A : in STD_LOGIC_VECTOR (3 downto 0);
            IN_B : in STD_LOGIC_VECTOR (3 downto 0);
-           Func_Sel : in STD_LOGIC_VECTOR (1 downto 0);
-           Result : out STD_LOGIC_VECTOR (3 downto 0));
+           Func_Sel : in STD_LOGIC_VECTOR (2 downto 0);
+           Result : out STD_LOGIC_VECTOR (3 downto 0);
+           G_out : out STD_LOGIC;
+           S_out : out STD_LOGIC;
+           E_out : out STD_LOGIC);
 end component;
 
 component LUT_16_7 is
@@ -162,7 +168,7 @@ Signal carry, RCAS_Overflow : STD_LOGIC;
 Signal InsBus : STD_LOGIC_VECTOR (12 downto 0);
 Signal AddSubSel : STD_LOGIC;
 Signal LoadSelect1,LoadSelect2 : STD_LOGIC;
-Signal Func_Select : STD_LOGIC_VECTOR(1 downto 0);
+Signal Func_Select : STD_LOGIC_VECTOR(2 downto 0);
 Signal ImmediateValue :  STD_LOGIC_VECTOR (3 downto 0);
 Signal RegSelect1, RegSelect2 :  STD_LOGIC_VECTOR (2 downto 0);
 Signal JumpFlag :  STD_LOGIC;
@@ -176,6 +182,7 @@ Signal Mem_Select : STD_LOGIC_VECTOR (2 downto 0);
 
 Signal S_7Seg : STD_LOGIC_VECTOR(6 downto 0);
 Signal Logic_Res : STD_LOGIC_VECTOR(3 downto 0);
+Signal ADDIns : STD_LOGIC;
 
 begin
 
@@ -239,8 +246,11 @@ begin
         port map ( 
         IN_A => muxOut1,
         IN_B => muxOut2,
-        Func_Sel =>  Func_Select,
-        Result => Logic_Res );
+        Func_Sel => Func_Select,
+        Result => Logic_Res,
+        G_out => G_out,
+        S_out => S_out,
+        E_out => E_out );
                    
          
     MUX_2_to_1_4b_0 : MUX_2_to_1_4bit
@@ -310,7 +320,9 @@ begin
     led <= Q7;
     seg <= S_7Seg;
     an <= "1110"; -- right most 7 Seg display is enabled while others are disabled
-    Zero <=  Not(RCAS_Out(0) or RCAS_Out(1) or RCAS_Out(2) or RCAS_Out(3))and Not(InsBus(11)) and Not(InsBus(10));
-    Overflow <= RCAS_Overflow and Not(InsBus(11)) and Not(InsBus(10));    
+    
+    ADDIns <= not( InsBus(12) or InsBus(11) or InsBus(10) ); 
+    Zero <=  Not(RCAS_Out(0) or RCAS_Out(1) or RCAS_Out(2) or RCAS_Out(3)) and ADDIns;
+    Overflow <= RCAS_Overflow and ADDIns;    
 
 end Behavioral;
