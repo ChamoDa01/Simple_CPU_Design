@@ -58,7 +58,7 @@ begin
     RegSelect1 <= InsBus(9 downto 7);
     RegSelect2 <= InsBus(6 downto 4);
     AddSubSel <= not(InsBus(11)) and InsBus(10);
-    JumpFlag <= not(CheckValue(0) or CheckValue(1) or CheckValue(2) or CheckValue(3)) and InsBus(11) and InsBus(10);
+    JumpFlag <= not(CheckValue(0) or CheckValue(1) or CheckValue(2) or CheckValue(3)) and not(InsBus(12)) and InsBus(11) and InsBus(10);
     AddressJ <= InsBus(2 downto 0);
     
 end Behavioral;
