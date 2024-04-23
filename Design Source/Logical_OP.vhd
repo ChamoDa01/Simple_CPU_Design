@@ -34,8 +34,11 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity Logical_OP is
     Port ( IN_A : in STD_LOGIC_VECTOR (3 downto 0);
            IN_B : in STD_LOGIC_VECTOR (3 downto 0);
-           Func_Sel : in STD_LOGIC_VECTOR (1 downto 0);
-           Result : out STD_LOGIC_VECTOR (3 downto 0));
+           Func_Sel : in STD_LOGIC_VECTOR (2 downto 0);
+           Result : out STD_LOGIC_VECTOR (3 downto 0);
+           G_out : out STD_LOGIC;
+           S_out : out STD_LOGIC;
+           E_out : out STD_LOGIC);
 end Logical_OP;
 
 architecture Behavioral of Logical_OP is
@@ -52,11 +55,20 @@ COMPONENT TriStateBuffer
            Enable : in STD_LOGIC );
 END COMPONENT;
 
-Signal Q1,Q2,Q3,Q4,Decoder_Out : STD_LOGIC_VECTOR(3 downto 0);
+COMPONENT Comparator_4bit
+    Port ( A : in STD_LOGIC_VECTOR (3 downto 0);
+           B : in STD_LOGIC_VECTOR (3 downto 0);
+           G_out : out STD_LOGIC;
+           S_out : out STD_LOGIC;
+           E_out : out STD_LOGIC);
+END COMPONENT;
+
+Signal Q1,Q2,Q3,Decoder_Out : STD_LOGIC_VECTOR(3 downto 0);
+Signal G,S,E,CMPIns : STD_LOGIC;
 
 begin
     Decoder_2_to_4_0 : Decoder_2_to_4
-    port map( I =>  Func_Sel,
+    port map( I =>  Func_Sel(1 downto 0),
               EN => '1',
               Y => Decoder_Out
     );
@@ -79,12 +91,18 @@ begin
     Q3(2) <= not IN_A(2);
     Q3(3) <= not IN_A(3);
         
-    -- Arithmetic Right Shift A (A/2)
-    -- for (-8 to 7)
-    Q4(0) <= IN_A(1);
-    Q4(1) <= IN_A(2);
-    Q4(2) <= IN_A(3);
-    Q4(3) <= IN_A(3);
+    -- Comparator
+    Comparator_0 : Comparator_4bit
+    Port map ( A => IN_A,
+               B => IN_B,
+               G_out => G,
+               S_out => S,
+               E_out => E
+    );
+    CMPIns <= Func_Sel(2) and Decoder_Out(3);
+    G_out <= G and CMPIns;
+    S_out <= S and CMPIns;
+    E_out <= E and CMPIns;
     
     TriStateBuffer_0 : TriStateBuffer
     Port map ( Input => Q1,
@@ -105,7 +123,7 @@ begin
     );
     
     TriStateBuffer_3 : TriStateBuffer
-    Port map ( Input => Q4,
+    Port map ( Input => IN_A,
                Output => Result,
                Enable => Decoder_Out(3)
     );
